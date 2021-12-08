@@ -94,6 +94,8 @@ for gpu in gpus:
 #model = keras.Model(inputs, x)
 
 def move_accuracy(y_true, y_pred):
+  y_true = y_true[:,0]
+  y_pred = y_pred[:,0]
   y_pred = tf.reshape(y_pred, (-1, 81))
   y_true = tf.reshape(y_true, (-1, 81))
   y_pred_idx = tf.argmax(y_pred, axis=1)
@@ -102,14 +104,39 @@ def move_accuracy(y_true, y_pred):
   return tf.math.count_nonzero(comp) / tf.size(y_true_idx, out_type=tf.dtypes.int64)
 
 def move_loss(y_true, y_pred):
-  y_pred = tf.reshape(y_pred, (-1, 81))
-  y_true = tf.reshape(y_true, (-1, 81))
+  y_pred = tf.reshape(y_pred, (-1, 3, 81))
+  y_true = tf.reshape(y_true, (-1, 3, 81))
   cce = tf.keras.losses.CategoricalCrossentropy()
   return cce(y_true, y_pred)
 
 if len(sys.argv) == 5:
     model = keras.models.load_model(sys.argv[4], custom_objects={'move_loss': move_loss, 'move_accuracy' : move_accuracy})
 else:
+  #inputs = keras.Input(shape=(9, 9, 2))
+  #x = inputs
+  #x = layers.Conv2D(64, 3)(x)
+  #x = layers.Activation(keras.activations.relu)(x)
+  #x = layers.BatchNormalization()(x)
+  #x = layers.Conv2D(64, 3)(x)
+  #x = layers.Activation(keras.activations.relu)(x)
+  #x = layers.BatchNormalization()(x)
+  #branches = []
+  #for i in range(3):
+  #  b = layers.Conv2D(64, 3)(x)
+  #  b = layers.Activation(keras.activations.relu)(b)
+  #  b = layers.BatchNormalization()(b)
+  #  b = layers.Conv2D(64, 3)(b)
+  #  b = layers.Activation(keras.activations.relu)(b)
+  #  b = layers.BatchNormalization()(b)
+  #  branches.append(b)
+  #x = layers.Concatenate(axis=3)(branches)
+  #x = layers.Flatten()(x)
+  #x = layers.Dense(81*3, activation="softmax")(x)
+  #x = layers.Reshape((3, 9, 9))(x)
+  #model = keras.Model(inputs, x)
+  #model.compile(optimizer=keras.optimizers.Adam(1e-3),
+  #            loss=move_loss,
+  #            metrics=[move_accuracy])
   #inputs = keras.Input(shape=(9, 9, 2))
   #x = inputs
   #x1 = layers.Conv2D(32, 3, strides=(3,3))(x)
@@ -137,48 +164,18 @@ else:
   #    x = layers.Add()([x, x_start])
   #x = layers.MaxPooling2D()(x)
 
-  #x = layers.Flatten()(x)
-  #x = layers.Dense(81, activation="softmax")(x)
-  #x = layers.Reshape((9, 9))(x)
+  #x0 = layers.Flatten()(x)
+  #x = layers.Dense(81, activation="softmax")(x0)
+  #x = layers.Reshape((1, 9, 9))(x)
+  #x2 = layers.Dense(81, activation="softmax")(x0)
+  #x2 = layers.Reshape((1, 9, 9))(x2)
+  #x3 = layers.Dense(81, activation="softmax")(x0)
+  #x3 = layers.Reshape((1, 9, 9))(x3)
+  #x = layers.Concatenate(axis=1)([x, x2, x3])
   #model = keras.Model(inputs, x)
-  #model.compile(optimizer=keras.optimizers.Adam(1e-2),
+  #model.compile(optimizer=keras.optimizers.Adam(1e-3),
   #            loss=move_loss,
   #            metrics=[move_accuracy])
-  inputs = keras.Input(shape=(9, 9, 2))
-  x = inputs
-  x1 = layers.Conv2D(32, 3, strides=(3,3))(x)
-  x1 = layers.UpSampling2D(3)(x1)
-  x2 = layers.Conv2D(8, 3, padding="same")(x)
-  x = layers.Concatenate(axis=3)([x1, x2])
-  print(x.shape)
-  x = layers.BatchNormalization()(x)
-  x = layers.Activation(keras.activations.relu)(x)
-  num_layers = 6
-  for i in range(num_layers):
-    start_x = x
-    x1 = layers.Conv2D(8, 3, padding="same", kernel_regularizer=keras.regularizers.l2(1e-6))(x)
-    x2 = layers.Conv2D(16, 3, strides=(3, 3), kernel_regularizer=keras.regularizers.l2(1e-6))(x)
-    x2 = layers.UpSampling2D(3)(x2)
-    x = layers.Concatenate(axis=3)([x1, x2])
-    x = layers.BatchNormalization()(x)
-    x = layers.Activation(keras.activations.relu)(x)
-    x = layers.Conv2D(16, 1, kernel_regularizer=keras.regularizers.l2(1e-6))(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Activation(keras.activations.relu)(x)
-    if i > 0:
-      x = layers.Add()([x, start_x])
-    #x = layers.Dropout(0.2)(x)
-  x = layers.Conv2D(1, 1, padding="same")(x)
-  x = layers.BatchNormalization()(x)
-  x = layers.Activation(keras.activations.relu)(x)
-  x = layers.Flatten()(x)
-  x = layers.Dense(81, activation="softmax")(x)
-  x = layers.Reshape((9, 9))(x)
-  model = keras.Model(inputs, x)
-  model.compile(optimizer=keras.optimizers.Adam(1e-2),
-              loss=move_loss,
-              metrics=[move_accuracy])
-  model.summary()
   #inputs = keras.Input(shape=(9, 9, 2))
   #x = inputs
   #x = layers.Conv2D(64, 3, strides=(3,3))(x)
@@ -245,18 +242,12 @@ print("pre-filtered train set size: " + str(train_inputs.shape[0]))
 #print("augmented train set size: " + str(train_inputs.shape[0]))
 
 train_set = set()
-new_train_inputs = []
-new_train_outputs = []
-train_inputs.flags.writeable = False
-train_outputs.flags.writeable = False
 for i, x in enumerate(train_inputs):
   if (x.tobytes(), train_outputs[i].tobytes()) not in train_set:
     train_set.add((x.tobytes(), train_outputs[i].tobytes()))
-    new_train_inputs.append(x)
-    new_train_outputs.append(train_outputs[i])
 
-train_inputs = np.array(new_train_inputs)
-train_outputs = np.array(new_train_outputs)
+#train_inputs = np.array(new_train_inputs)
+#train_outputs = np.array(new_train_outputs)
 
 print("filtered train set size: " + str(train_inputs.shape[0]))
 
@@ -281,6 +272,11 @@ for i, x in enumerate(valid_inputs):
 valid_inputs = np.array(new_valid_inputs)
 valid_outputs = np.array(new_valid_outputs)
 
+aug_valid_outputs = np.zeros((valid_outputs.shape[0], 3, 9, 9))
+for i, o in enumerate(valid_outputs):
+  aug_valid_outputs[i][0] = o
+valid_outputs = aug_valid_outputs
+
 valid_ds = (valid_inputs, valid_outputs)
 
 batch_size = 32*15
@@ -292,21 +288,30 @@ def train_gen():
     #idx = np.random.choice(np.arange(train_inputs.shape[0]), batch_size, replace=False)
     x = train_inputs[n:n+batch_size]
     y = train_outputs[n:n+batch_size]
+    y = np.zeros((x.shape[0], 3, 9, 9))
+    for i in range(n, n + batch_size):
+      y[i - n][0] = train_outputs[i]
+      for j in range(1, 3):
+        idx = (i + j) % train_outputs.shape[0]
+        if (train_inputs[idx] == np.zeros((9, 9, 2))).all():
+          break
+        y[i - n][j] = train_outputs[idx]
+
     idx = np.random.choice(np.arange(batch_size), batch_size//2, replace=False)
     x[idx] = np.flip(x[idx], axis=1)
-    y[idx] = np.flip(y[idx], axis=1)
+    y[idx] = np.flip(y[idx], axis=2)
     idx = np.random.choice(np.arange(batch_size), batch_size//2, replace=False)
     x[idx] = np.flip(x[idx], axis=2)
-    y[idx] = np.flip(y[idx], axis=2)
+    y[idx] = np.flip(y[idx], axis=3)
     idx = np.random.choice(np.arange(batch_size), 3*batch_size//4, replace=False)
     x[idx] = np.rot90(x[idx], axes=(1,2))
-    y[idx] = np.rot90(y[idx], axes=(1,2))
+    y[idx] = np.rot90(y[idx], axes=(2,3))
     idx = np.random.choice(idx, batch_size//2, replace=False)
     x[idx] = np.rot90(x[idx], axes=(1,2))
-    y[idx] = np.rot90(y[idx], axes=(1,2))
+    y[idx] = np.rot90(y[idx], axes=(2,3))
     idx = np.random.choice(idx, batch_size//4, replace=False)
     x[idx] = np.rot90(x[idx], axes=(1,2))
-    y[idx] = np.rot90(y[idx], axes=(1,2))
+    y[idx] = np.rot90(y[idx], axes=(2,3))
     yield x, y
     n += batch_size
     n = n % (available - batch_size)

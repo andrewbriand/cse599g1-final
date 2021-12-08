@@ -5,11 +5,13 @@ import pickle
 import numpy as np
 import sys
 import random
+import keras_tuner as kt
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
+#tf.config.run_functions_eagerly(True)
 
 # One layer linear
 #inputs = keras.Input(shape=(9, 9, 2))
@@ -107,142 +109,54 @@ def move_loss(y_true, y_pred):
   cce = tf.keras.losses.CategoricalCrossentropy()
   return cce(y_true, y_pred)
 
-if len(sys.argv) == 5:
-    model = keras.models.load_model(sys.argv[4], custom_objects={'move_loss': move_loss, 'move_accuracy' : move_accuracy})
-else:
-  #inputs = keras.Input(shape=(9, 9, 2))
-  #x = inputs
-  #x1 = layers.Conv2D(32, 3, strides=(3,3))(x)
-  #x1 = layers.UpSampling2D(3)(x1)
-  #x2 = layers.Conv2D(32, 3, padding="same")(x)
-  #x = layers.Concatenate(axis=3)([x1, x2])
-  #x = layers.Activation(keras.activations.relu)(x)
-  #x = layers.BatchNormalization()(x)
-
-  #for i in range(3):
-  #  x_start = x
-  #  x = layers.Conv2D(128, 3, padding="same")(x)
-  #  x = layers.Activation(keras.activations.relu)(x)
-  #  x = layers.BatchNormalization()(x)
-  #  if i > 0:
-  #    x = layers.Add()([x, x_start])
-  #x = layers.MaxPooling2D()(x)
-
-  #for i in range(3):
-  #  x_start = x
-  #  x = layers.Conv2D(256, 3, padding="same")(x)
-  #  x = layers.Activation(keras.activations.relu)(x)
-  #  x = layers.BatchNormalization()(x)
-  #  if i > 0:
-  #    x = layers.Add()([x, x_start])
-  #x = layers.MaxPooling2D()(x)
-
-  #x = layers.Flatten()(x)
-  #x = layers.Dense(81, activation="softmax")(x)
-  #x = layers.Reshape((9, 9))(x)
-  #model = keras.Model(inputs, x)
-  #model.compile(optimizer=keras.optimizers.Adam(1e-2),
-  #            loss=move_loss,
-  #            metrics=[move_accuracy])
+def create_model(hp):
   inputs = keras.Input(shape=(9, 9, 2))
   x = inputs
-  x1 = layers.Conv2D(32, 3, strides=(3,3))(x)
+  x1 = layers.Conv2D(hp.Choice('s_filters_init', [8, 16, 32]), 3, strides=(3,3))(x)
   x1 = layers.UpSampling2D(3)(x1)
-  x2 = layers.Conv2D(8, 3, padding="same")(x)
+  x2 = layers.Conv2D(hp.Choice('filters_init', [8, 16, 32]), 3, padding="same")(x)
   x = layers.Concatenate(axis=3)([x1, x2])
   print(x.shape)
-  x = layers.BatchNormalization()(x)
   x = layers.Activation(keras.activations.relu)(x)
-  num_layers = 6
+  x = layers.BatchNormalization()(x)
+  num_layers = hp.Choice('num_layers', [2, 4, 6, 8, 10])
+  filters_stride = hp.Choice('filters_stride', [8, 16])
+  filters = hp.Choice('filters', [8, 16])
+  filters_1x1 = hp.Choice('filters_1x1', [8, 16])
+  reg = hp.Choice('reg', [1e-6, 1e-5, 1e-4, 1e-3])
   for i in range(num_layers):
     start_x = x
-    x1 = layers.Conv2D(8, 3, padding="same", kernel_regularizer=keras.regularizers.l2(1e-6))(x)
-    x2 = layers.Conv2D(16, 3, strides=(3, 3), kernel_regularizer=keras.regularizers.l2(1e-6))(x)
+    x1 = layers.Conv2D(filters_stride, 3, padding="same", kernel_regularizer=keras.regularizers.l2(reg))(x)
+    x2 = layers.Conv2D(filters, 3, strides=(3, 3), kernel_regularizer=keras.regularizers.l2(reg))(x)
     x2 = layers.UpSampling2D(3)(x2)
     x = layers.Concatenate(axis=3)([x1, x2])
-    x = layers.BatchNormalization()(x)
     x = layers.Activation(keras.activations.relu)(x)
-    x = layers.Conv2D(16, 1, kernel_regularizer=keras.regularizers.l2(1e-6))(x)
     x = layers.BatchNormalization()(x)
+    x = layers.Conv2D(filters_1x1, 1, kernel_regularizer=keras.regularizers.l2(reg))(x)
     x = layers.Activation(keras.activations.relu)(x)
+    x = layers.BatchNormalization()(x)
     if i > 0:
       x = layers.Add()([x, start_x])
     #x = layers.Dropout(0.2)(x)
   x = layers.Conv2D(1, 1, padding="same")(x)
-  x = layers.BatchNormalization()(x)
   x = layers.Activation(keras.activations.relu)(x)
+  x = layers.BatchNormalization()(x)
   x = layers.Flatten()(x)
   x = layers.Dense(81, activation="softmax")(x)
   x = layers.Reshape((9, 9))(x)
   model = keras.Model(inputs, x)
-  model.compile(optimizer=keras.optimizers.Adam(1e-2),
+  lr = hp.Choice('lr', [1e-5, 1e-4, 1e-3, 1e-2])
+  model.compile(optimizer=keras.optimizers.Adam(lr),
               loss=move_loss,
               metrics=[move_accuracy])
-  model.summary()
-  #inputs = keras.Input(shape=(9, 9, 2))
-  #x = inputs
-  #x = layers.Conv2D(64, 3, strides=(3,3))(x)
-  #x = layers.Activation(keras.activations.relu)(x)
-  #x = layers.BatchNormalization()(x)
-  #num_layers = 6
-  #for i in range(num_layers):
-  #  x = layers.Conv2D(64, 3, padding="same")(x)
-  #  x = layers.Activation(keras.activations.relu)(x)
-  #  x = layers.BatchNormalization()(x)
-  #  x = layers.Dropout(0.2)(x)
-  ##x = layers.Conv2D(9, 1, padding="same")(x)
-  ##x = layers.Activation(keras.activations.softmax)(x)
-  ##x = layers.Reshape((9, 9))(x)
-  #x = layers.Flatten()(x)
-  #x = layers.Dense(81, activation="softmax")(x)
-  #x = layers.Reshape((9, 9))(x)
-  #model = keras.Model(inputs, x)
-  #model.compile(optimizer=keras.optimizers.Adam(1e-2),
-  #            loss=move_loss,
-  #            metrics=[move_accuracy])
-
-
-
-
-#def move_accuracy(y_true, y_pred):
-#  y_pred = tf.round(y_pred)
-#  comp = tf.math.logical_and(tf.math.equal(y_pred, 1.0), tf.math.equal(y_true, 1.0))
-#  return tf.math.count_nonzero(comp) / tf.math.count_nonzero(tf.math.equal(y_true, 1.0))
-
-  
+  tf.keras.backend.clear_session()
+  return model
 
 with open(sys.argv[1], "rb") as f:
   (train_inputs, train_outputs) = pickle.load(f)
 
 print("pre-filtered train set size: " + str(train_inputs.shape[0]))
 
-#aug_train_inputs = []
-#aug_train_outputs = []
-#for i, x in enumerate(train_inputs):
-#  aug_train_inputs.append(np.flipud(x))
-#  aug_train_outputs.append(np.flipud(train_outputs[i]))
-#
-#train_inputs = np.concatenate((train_inputs, np.array(aug_train_inputs)))
-#train_outputs = np.concatenate((train_outputs, np.array(aug_train_outputs)))
-
-#aug_train_inputs = []
-#aug_train_outputs = []
-#for i, x in enumerate(train_inputs):
-#  aug_train_inputs.append(np.fliplr(x))
-#  aug_train_outputs.append(np.fliplr(train_outputs[i]))
-#
-#train_inputs = np.concatenate((train_inputs, np.array(aug_train_inputs)))
-#train_outputs = np.concatenate((train_outputs, np.array(aug_train_outputs)))
-#
-#aug_train_inputs = []
-#aug_train_outputs = []
-#for i, x in enumerate(train_inputs):
-#  aug_train_inputs.append(np.transpose(x, axes=[1, 0, 2]))
-#  aug_train_outputs.append(np.transpose(train_outputs[i], axes=[1, 0]))
-#
-#train_inputs = np.concatenate((train_inputs, np.array(aug_train_inputs)))
-#train_outputs = np.concatenate((train_outputs, np.array(aug_train_outputs)))
-#print("augmented train set size: " + str(train_inputs.shape[0]))
 
 train_set = set()
 new_train_inputs = []
@@ -259,8 +173,6 @@ train_inputs = np.array(new_train_inputs)
 train_outputs = np.array(new_train_outputs)
 
 print("filtered train set size: " + str(train_inputs.shape[0]))
-
-
 
 with open(sys.argv[2], "rb") as f:
   (valid_inputs, valid_outputs) = pickle.load(f)
@@ -322,11 +234,16 @@ def train_gen():
 
 print("filtered valid set size: " + str(valid_inputs.shape[0]))
 
-model.fit(train_gen(), validation_data=valid_ds, epochs=100, steps_per_epoch=319)
+#model.fit(train_gen(), validation_data=valid_ds, epochs=100, steps_per_epoch=319)
 #model.fit(train_inputs, train_outputs, validation_data=valid_ds, batch_size=batch_size,epochs=100)
 
-model.save(sys.argv[3])
+tuner = kt.BayesianOptimization(create_model, objective=kt.Objective('val_move_accuracy', 'max'), max_trials=20, project_name="models/hypertune3")
 
-print(train_outputs[100])
-print(model.predict(np.array([train_inputs[100]])))
+tuner.search(train_gen(), epochs=20, validation_data=valid_ds, steps_per_epoch=319)
+
+tuner.get_best_models()[0].save(sys.argv[3])
+#model.save(sys.argv[3])
+#
+#print(train_outputs[100])
+#print(model.predict(np.array([train_inputs[100]])))
 
