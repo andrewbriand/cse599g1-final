@@ -60,7 +60,7 @@ class Board:
     #print(self.legal)
 
     if np.count_nonzero(self.legal) == 0:
-      result = 0.5
+      self.result = 0.5
 
     if self.to_play == 1:
       self.to_play = 0
@@ -72,3 +72,21 @@ class Board:
 
   def get_cells(self):
     return self.cells
+
+  def display(self):
+    result = "0 1 2   3 4 5   6 7 8\n"
+    for y in range(9):
+      for x in range(9):
+        if self.cells[0][x][y] == 1.0:
+          result += "X "
+        elif self.cells[1][x][y] == 1.0:
+          result += "O "
+        else:
+          result += "- "
+        if x == 2 or x == 5:
+          result += "| "
+      result += str(y) + "\n"
+      if y == 2 or y == 5:
+        result += "---------------------\n"
+       
+    print(result)
