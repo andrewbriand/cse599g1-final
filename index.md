@@ -1,4 +1,5 @@
-## Welcome to GitHub Pages
+## Ultimate Tic-Tac-Toe
+### Andrew Briand's CSE599G1 final project
 
 You can use the [editor on GitHub](https://github.com/andrewbriand/cse599g1-final/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
