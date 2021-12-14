@@ -15,6 +15,7 @@ class Board:
   def __init__(self, cells=np.zeros((2, 9, 9)), legal=np.ones((9, 9)), to_play=0):
     self.cells = np.zeros((2, 9, 9))
     self.squares = np.zeros((2, 3, 3))
+    self.square_mask = np.ones((9, 9))
     self.legal = np.ones((9, 9))
     self.to_play = 0
     self.result = None
@@ -41,6 +42,10 @@ class Board:
     # check for local cell victory
     if self.check_victory(self.get_cells_in_square(self.to_play, x_global, y_global)):
       self.squares[self.to_play][x_global][y_global] = 1.0
+      self.square_mask[x_global*3:(x_global+1)*3,y_global*3:(y_global+1)*3] = 0.0
+
+    if np.count_nonzero(self.get_cells_in_square(0, x_local, y_local) + self.get_cells_in_square(1, x_local, y_local)) == 9:
+      self.square_mask[self.to_play][x_global*3:(x_global+1)*3,y_global*3:(y_global+1)*3] = 0.0
 
     # check for global victory
     if self.check_victory(self.squares[self.to_play]):
@@ -51,7 +56,7 @@ class Board:
     square_drawn = np.count_nonzero(self.get_cells_in_square(0, x_local, y_local) + self.get_cells_in_square(1, x_local, y_local)) == 9
     whole_board = square_occupied or square_drawn
 
-    self.legal = np.logical_and((self.cells[0] == 0.0), (self.cells[1] == 0.0)).astype(float)
+    self.legal = np.logical_and(self.square_mask, np.logical_and((self.cells[0] == 0.0), (self.cells[1] == 0.0)).astype(float)).astype(float)
     #print(self.legal)
     if not whole_board:
       local_legal = np.copy(self.legal[x_local*3:(x_local+1)*3,y_local*3:(y_local+1)*3])
