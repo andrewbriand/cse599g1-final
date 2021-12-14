@@ -21,17 +21,46 @@ Due to time and resource constraints, it was not possible to replicate the entir
 
 In the first phase of training, networks were trained to predict the moves made in games played by the top 20 AIs in the Ultimate Tic-Tac-Toe competition on codingame.net. XXX games comprised of XXX positions were downloaded from the site and then split 80-10-10 into train, dev, and test sets. After experimenting by hand with various architectures, a hyperparameter search was performed with Bayesian optimization to find the best network architecture and learning rate.
 
-The networks' input consisted of an 9x9x2 tensor in which the first channel was set to 1.0 at cells occupied by the current player and the second channel was set to 1.0 at cells occupied by the opposing player. All other inputs were set to 0.0. The output consisted of a 9x9 tensor representing a probability distribution over possible moves.
+The networks' input consisted of an 9x9x2 tensor in which the first channel was set to 1 at cells occupied by the current player and the second channel was set to 1 at cells occupied by the opposing player. All other inputs were set to 0. The output consisted of a 9x9 tensor representing a probability distribution over possible moves.
 
 During training, positions were randomly rotated and reflected before being input into the network in an attempt to reduce overfitting and make the network more robust. This is possible because reflecting or rotating an Ultimate Tic-Tac-Toe position yields an equivalent position. 
 
-Experiments were also run with networks whose input consisted of a 9x9x3 tensor, in which the third channel was set to 1.0 for cells where a legal move could be played and 0.0 elsewhere, but this offered no performance improvement.
+Experiments were also run with networks whose input consisted of a 9x9x3 tensor, in which the third channel was set to 1 for cells where a legal move could be played and 0 elsewhere, but this offered no performance improvement.
 
-Networks were trained with the Adam optimization algorithm using categorical cross-entropy loss. Hyperparameters were selected to maximize accuracy, i.e. how often a given network assigned the largest probability in its distribution to the move truly made in the original game. During the hyperparameter search, networks were trained for 20 epochs. Then, two architectures were selected and these were trained for 200 epochs on the training set. The validation accuracy for these 200-epoch runs was maximized at around epoch 100, so the networks were then retrained on the training and validation sets for 100 epochs for evaluation on the test test.
+Networks were trained with the Adam optimization algorithm using categorical cross-entropy loss. Hyperparameters were selected to maximize validation accuracy, i.e. how often a given network assigned the largest probability in its distribution to the move truly made in games in the validation set. During the hyperparameter search, networks were trained for 20 epochs. Then, two architectures were selected and these were trained for 200 epochs on the training set. The validation accuracy for these 200-epoch runs was maximized at around epoch 100, so the networks were then retrained on the training and validation sets for 100 epochs for evaluation on the test set.
 
+### Evaluation
+
+### Results
+#### Phase 1
 ##### Architecture
 
-Two good architectures were chosen from the hyperparameter search 
+Two architectures were chosen from the hyperparameter search.
+
+The first consists of the following for a total of 126k trainable parameters:
+
+1. 32 3x3 filters convolved over the input with a stride of 3.
+2. 32 3x3 filters convolved over the input with a stride of 1.
+3. A ReLU activation applied to the concatenation of 1 upsampled to a 9x9x32 tensor and 2.
+4. A batch-normalization layer.
+5. 12 convolutional layers consisting of 32 3x3 filters, each followed by ReLU activation and batch normalization.
+6. A convolution layer consiting of 1 1x1 filter, followed by ReLU activation and batch normalization. 
+7. A dense layer with 81 outputs with softmax activation to form the 9x9 output tensor. 
+
+The second consists of the following for a total of 36k trainable parameters:
+1. 32 3x3 filters convolved over the input with a stride of 3.
+2. 8 3x3 filters convolved over the input with a stride of 1.
+3. A ReLU activation applied to the concatenation of 1 upsampled to a 9x9x32 tensor and 2.
+4. A batch-normalization layer.
+5. 6 residual units in which the concatenation of the upsampled output of 8 3x3 filters with a stride of 3 and 16 3x3 filters with a stride of 1 undergoes ReLU activation and batch-normalization and is then fed into a convolution of 24 1x1 filters. The result of this undergoes ReLU activation and batchnormalization and is then added to the input of the unit.
+6. A convolutional layer consisting of 1 1x1 filter followed by ReLU activation and batch normalization.
+7. A dense layer with 81 outputs with softmax activation to form the 9x9 output tensor.
+
+##### Accuracy
+
+Network 1 
+
+#### Phase 2
 
 
 ### Markdown
