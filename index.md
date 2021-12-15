@@ -7,13 +7,13 @@ The goal of this project was to create an AI to play Ultimate Tic-Tac-Toe using 
 
 ## Problem Statement
 
-Ultimate Tic-Tac-Toe is played on a board composed of 9 standard 3x3 Tic-Tac-Toe boards arranged in a 3x3 grid. The goal of the game is to win 3 of these standard 3x3 Tic-Tac-Toe boards such that they form a row of three in the grid before the opponent does. A good explanation of the rules can be found here: https://ultimate-t3.herokuapp.com/rules.
+Ultimate Tic-Tac-Toe is played on a board composed of 9 standard 3x3 Tic-Tac-Toe boards arranged in a 3x3 grid. The goal of the game is to win 3 of these standard 3x3 Tic-Tac-Toe boards such that they form a row of three in the grid before the opponent does. A good explanation of the rules can be found [here](https://ultimate-t3.herokuapp.com/rules).
 
 ## Related Work
 
 I have personally created several AI to play ultimate tic tac toe without deep learning in the past. I used my best one for evaluation at the end of the project.
 
-There is a leaderboard for Ultimate Tic-Tac-Toe AIs at https://www.codingame.com/multiplayer/bot-programming/tic-tac-toe/leaderboard. This is where I collected data for the project.
+There is a leaderboard for Ultimate Tic-Tac-Toe AIs on [codingame.com](https://www.codingame.com/multiplayer/bot-programming/tic-tac-toe/leaderboard). This is where I collected data for the project.
 
 There is a paper by Bertholon et al. \[2\] which provides an optimal strategy for a _different_ variant of Ultimate Tic-Tac-Toe in which players can play in boards already won by themselves or the opponent. I know of no solution to the variant I tackle in this project. 
 
@@ -23,7 +23,7 @@ Due to time and resource constraints, it was not possible to replicate the entir
 
 ### Phase 1
 
-In the first phase of training, networks were trained to predict the moves made in games played by the top 20 AIs in the Ultimate Tic-Tac-Toe competition on codingame.net. 4,906 games comprised of 189,662 unique position-move pairs were downloaded from the site and then split 80-10-10 into train, dev, and test sets by game. After experimenting by hand with various architectures, a hyperparameter search was performed with Bayesian optimization to find the best network architecture, learning rate, and regularization.
+In the first phase of training, networks were trained to predict the moves made in games played by the top 20 AIs in the Ultimate Tic-Tac-Toe competition on codingame.com. 4,906 games comprised of 189,662 unique position-move pairs were downloaded from the site and then split 80-10-10 into train, dev, and test sets by game. After experimenting by hand with various architectures, a hyperparameter search was performed with Bayesian optimization to find the best network architecture, learning rate, and regularization.
 
 The networks' input consisted of an 9x9x2 tensor in which the first channel was set to 1 at cells occupied by the current player and the second channel was set to 1 at cells occupied by the opposing player. All other inputs were set to 0. The output consisted of a 9x9 tensor representing a probability distribution over possible moves.
 
@@ -87,7 +87,7 @@ Value networks produced by phase 3 were evaluated based on their mean squared er
 
 ### Search Algorithm
 
-The final search algorithm was evaluated on its win-rate against an MCTS-based AI with a hand-coded policy that I created last year (currently around 50th place on the codingame.net leaderboard). The amount of rollouts the network-based search and the hand-coded search were permitted to perform was varied to examine its effect on win-rate.
+The policy network alone and the final search algorithm were evaluated on their win-rates against an MCTS-based AI with a hand-coded policy that I created last year (which was around 50th place on the codingame.com leaderboard at the time). 
 
 ## Results
 ### Phase 1
@@ -145,7 +145,7 @@ The search algorithm detailed above was played against by previous hand-coded po
 
 During game generation for stage 3, it would be preferable to add noise to the network's output distribution for moves up to turn U-1. This is done in the AlphaGo paper to increase the variety of the positions in the training set. This would be beneficial as there were some duplicates and probably many similar positions in the set produced during this project. The AlphaGo paper doesn't specify how noise is added and unfortunately I didn't have enough time to play around with this.
 
-Additionally, considering the value networks I trained had such poor performance, it would be interesting to try a search algorithm using only the policy network and random rollouts. Of course, it would also be interesting to try adding other features of the original AlphaGo, like having a fast rollout policy and a fast tree policy. Experimenting with different values of c and different softmax temperatures for the policy network would also be promising.
+Additionally, considering the value networks I trained had relatively poor performance, it would be interesting to try a search algorithm using only the policy network and random rollouts. Of course, it would also be interesting to try adding other features of the original AlphaGo, like having a fast rollout policy and a fast tree policy. Experimenting with different values of c and different softmax temperatures for the policy network would also be promising.
 
 I would also like to evaluate the network by uploading it to the codingame leaderboard, but this would require further work as the upload size is very limited and only a single source file is allowed, so I would likely have to compress the network's parameters and write them into the source file itself as an array. 
 
