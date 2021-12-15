@@ -4,6 +4,8 @@ import pickle
 import sys
 import random
 
+num_moves_per_output = 3
+
 games = []
 args = list(sys.argv[4:])
 random.shuffle(args)
