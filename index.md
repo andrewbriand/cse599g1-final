@@ -23,7 +23,7 @@ Due to time and resource constraints, it was not possible to replicate the entir
 
 ### Phase 1
 
-In the first phase of training, networks were trained to predict the moves made in games played by the top 20 AIs in the Ultimate Tic-Tac-Toe competition on codingame.net. 4,906 games comprised of 189,662 unique position-move pairs were downloaded from the site and then split 80-10-10 into train, dev, and test sets by game. After experimenting by hand with various architectures, a hyperparameter search was performed with Bayesian optimization to find the best network architecture and learning rate.
+In the first phase of training, networks were trained to predict the moves made in games played by the top 20 AIs in the Ultimate Tic-Tac-Toe competition on codingame.net. 4,906 games comprised of 189,662 unique position-move pairs were downloaded from the site and then split 80-10-10 into train, dev, and test sets by game. After experimenting by hand with various architectures, a hyperparameter search was performed with Bayesian optimization to find the best network architecture, learning rate, and regularization.
 
 The networks' input consisted of an 9x9x2 tensor in which the first channel was set to 1 at cells occupied by the current player and the second channel was set to 1 at cells occupied by the opposing player. All other inputs were set to 0. The output consisted of a 9x9 tensor representing a probability distribution over possible moves.
 
