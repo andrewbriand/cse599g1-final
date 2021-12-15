@@ -139,7 +139,7 @@ The best network resulting from phase 2 was played against my previous hand-code
 
 #### Search algorithm
 
-The search algorithm detailed above was played against by previous hand-coded policy AI with the best policy and value networks from phases 2 and 3. Eight games were played and the AIs were permitted 250 rollouts each. The network AI won 3 and lost 5 games. I believe the search's poor performance is due to the poor performance of the value network. The performance of the policy network alone is quite good above and in phases 1 and 2. If I had more time, I would be able to improve the value network and evaluate more rollout numbers for the two AIs. 
+The search algorithm detailed above was played against my previous hand-coded policy AI with the best policy and value networks from phases 2 and 3. Eight games were played and the AIs were permitted 250 rollouts each. The network AI won 3 and lost 5 games. I believe the search's poor performance is due to the poor performance of the value network. The performance of the policy network alone is quite good above and in phases 1 and 2. If I had more time, I would be able to improve the value network and evaluate more rollout numbers for the two AIs. 
 
 ## Future Improvements
 
