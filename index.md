@@ -126,11 +126,20 @@ The first network achieved a win-rate of 90.7% in 1000 games against its initial
 
 The first network was used to generate data as it beat the second network head-to-head in phase 2. The modified versions of networks 1 and 2 achieved test MSE's of 0.68 and 0.71 respectively.
 
-### Evaluation against other AIs
+### Evaluation against another AI
 
 #### Phase 2
 
+The best network resulting from phase 2 was played against my previous hand-coded policy AI with move sampling as before (i.e. with no search). Below is a chart of the number of MCTS rollouts the other AI was permitted to do vs the win-rate and draw-rate of the network. Each match consisted of 30 games, 15 as X and 15 as O.
+
+|Rollouts|250|500|1000|5000|10000|
+|--------|---|---|----|----|----|
+|Win rate|43.3%|30.0%|40.0%|16.7%|3.3%|
+|Draw rate|16.7%|6.7%|16.7%|10.0%|13.3%|
+
 #### Search algorithm
+
+The search algorithm detailed above was played against by previous hand-coded policy AI with the best policy and value networks from phases 2 and 3. Eight games were played and the AIs were permitted 250 rollouts each. The network AI won 3 and lost 5 games. I believe the search's poor performance is due to the poor performance of the value network. The performance of the policy network alone is quite good above and in phases 1 and 2. If I had more time, I would be able to improve the value network and evaluate more rollout numbers for the two AIs. 
 
 ## Future Improvements
 
