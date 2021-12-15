@@ -20,6 +20,16 @@ class Board:
     self.to_play = 0
     self.result = None
 
+  def copy(self):
+    c = Board()
+    c.cells = np.copy(self.cells)
+    c.squares = np.copy(self.squares)
+    c.square_mask = np.copy(self.square_mask)
+    c.legal = np.copy(self.legal)
+    c.to_play = self.to_play
+    c.result = self.result
+    return c
+
   def check_victory(self, square):
     bin_rep = 0
     for x in range(3):
@@ -44,8 +54,8 @@ class Board:
       self.squares[self.to_play][x_global][y_global] = 1.0
       self.square_mask[x_global*3:(x_global+1)*3,y_global*3:(y_global+1)*3] = 0.0
 
-    if np.count_nonzero(self.get_cells_in_square(0, x_local, y_local) + self.get_cells_in_square(1, x_local, y_local)) == 9:
-      self.square_mask[self.to_play][x_global*3:(x_global+1)*3,y_global*3:(y_global+1)*3] = 0.0
+    #if np.count_nonzero(self.get_cells_in_square(0, x_global, y_global) + self.get_cells_in_square(1, x_global, y_global)) == 9:
+    #  self.square_mask[x_global*3:(x_global+1)*3,y_global*3:(y_global+1)*3] = 0.0
 
     # check for global victory
     if self.check_victory(self.squares[self.to_play]):
