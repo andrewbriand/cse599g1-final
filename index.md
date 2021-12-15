@@ -1,5 +1,5 @@
 # Ultimate Tic-Tac-Toe
-## Andrew Briand's CSE599G1 final project
+## Andrew Briand's CSE 599G1 final project
 
 ## Abstract
 
@@ -15,7 +15,7 @@ Ultimate Tic-Tac-Toe is played on a board composed of 9 standard 3x3 Tic-Tac-Toe
 
 ## Methodology
 
-Due to time and resource constraints, it was not possible to replicate the entire training regime and search algorithm of the AlphaGo paper. The method used is as follows.
+Due to time and resource constraints, it was not possible to replicate the entire training regime and search algorithm of the AlphaGo paper. The method that was used is as follows.
 
 ### Phase 1
 
@@ -27,7 +27,16 @@ During training, positions were randomly rotated and reflected before being inpu
 
 Experiments were also run with networks whose input consisted of a 9x9x3 tensor, in which the third channel was set to 1 for cells where a legal move could be played and 0 elsewhere, but this offered no performance improvement.
 
-Networks were trained with the Adam optimization algorithm using categorical cross-entropy loss. Hyperparameters were selected to maximize validation accuracy, i.e. how often a given network assigned the largest probability in its distribution to the move actually made in games in the validation set. During the hyperparameter search, networks were trained for 20 epochs. Then, two architectures were selected and these were trained for 200 epochs on the training set. The validation accuracy for these 200-epoch runs was maximized at around epoch 100, so the networks were then retrained on the training and validation sets for 100 epochs for evaluation on the test set.
+Networks were trained with the Adam optimization algorithm to minimize categorical cross-entropy loss. Hyperparameters were selected to maximize validation accuracy, i.e. how often a given network assigned the largest probability in its distribution to the move actually made in games in the validation set. During the hyperparameter search, networks were trained for 20 epochs. Then, two architectures were selected and these were trained for 200 epochs on the training set. The validation accuracy for these 200-epoch runs was maximized at around epoch 100, so the networks were then retrained on the training and validation sets for 100 epochs for evaluation on the test set.
+
+### Phase 2
+
+In the second phase of training, networks played games against themselves and then their parameters were adjusted to maximize the probabilities of moves that led to a win and minimize the probabilities of moves that led to a loss. 
+
+Games were played in batches of 160. Each batch consisted of 10 sub-batches of 16 games played between the current network and a network randomly selected from a pool of networks. The pool was initialized to contain only the network and its parameters resulting from phase 1. The current network was initialized to the same network with the same parameters. After each batch of 160 games, an update was applied to the current networks' parameters \[1, 2\]:
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;\large&space;\Delta&space;\rho&space;=&space;\frac{\alpha}{n}&space;\sum_{i=1}^{n}&space;\sum_{t=1}&space;^{T^i}&space;\frac{\partial&space;\log&space;p_\rho&space;(a_t^i&space;|&space;s_t^i)}{\partial&space;\rho}z_t^i" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;\large&space;\Delta&space;\rho&space;=&space;\frac{\alpha}{n}&space;\sum_{i=1}^{n}&space;\sum_{t=1}&space;^{T^i}&space;\frac{\partial&space;\log&space;p_\rho&space;(a_t^i&space;|&space;s_t^i)}{\partial&space;\rho}z_t^i" title="\large \Delta \rho = \frac{\alpha}{n} \sum_{i=1}^{n} \sum_{t=1} ^{T^i} \frac{\partial \log p_\rho (a_t^i | s_t^i)}{\partial \rho}z_t^i" /></a>
+
 
 ## Evaluation
 
@@ -35,7 +44,7 @@ Networks were trained with the Adam optimization algorithm using categorical cro
 ### Phase 1
 #### Architecture
 
-Two architectures were chosen from the hyperparameter search. The search chose a learning rate of 1e-2 for both networks.
+Two architectures were chosen from the hyperparameter search. The search chose a learning rate of 1e-2 for both networks. All convolutions were zero-padded when necessary to preserve the size of the input.
 
 The first consists of the following for a total of 126k trainable parameters:
 
@@ -61,5 +70,9 @@ The second consists of the following for a total of 36k trainable parameters:
 The first network achieved an accuracy of 48.7% on the test set and the second achieved an accuracy of 49.2% on the test set.
 
 ### Phase 2
+
+## Cited Works
+
+
 
 
