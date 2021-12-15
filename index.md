@@ -7,11 +7,15 @@ The goal of this project was to create an AI to play Ultimate Tic-Tac-Toe using 
 
 ## Problem Statement
 
-Ultimate Tic-Tac-Toe is played on a board composed of 9 standard 3x3 Tic-Tac-Toe boards arranged in a 3x3 grid. The goal of the game is to win 3 of these standard 3x3 Tic-Tac-Toe boards such that they form a row of three in the grid before the opponent does. You can play Ultimate Tic-Tac-Toe against yourself or with a friend here to help you understand the rules: https://ultimate-t3.herokuapp.com/local-game.
+Ultimate Tic-Tac-Toe is played on a board composed of 9 standard 3x3 Tic-Tac-Toe boards arranged in a 3x3 grid. The goal of the game is to win 3 of these standard 3x3 Tic-Tac-Toe boards such that they form a row of three in the grid before the opponent does. A good explanation of the rules can be found here: https://ultimate-t3.herokuapp.com/rules.
 
 ## Related Work
 
+I have personally created several AI to play ultimate tic tac toe without deep learning in the past. I used my best one for evaluation at the end of the project.
 
+There is a leaderboard for Ultimate Tic-Tac-Toe AIs at https://www.codingame.com/multiplayer/bot-programming/tic-tac-toe/leaderboard. This is where I collected data for the project.
+
+There is a paper by Bertholon et al. \[2\] which provides an optimal strategy for a _different_ variant of Ultimate Tic-Tac-Toe in which players can play in boards already won by themselves or the opponent. I know of no solution to the variant I tackle in this project. 
 
 ## Methodology
 
@@ -33,7 +37,7 @@ Networks were trained with the Adam optimization algorithm to minimize categoric
 
 In the second phase of training, networks played games against themselves and then their parameters were adjusted to maximize the probabilities of moves that led to a win and minimize the probabilities of moves that led to a loss. 
 
-Games were played in batches of 160. Each batch consisted of 10 sub-batches of 16 games played between the current network and a network randomly selected from a pool of networks. Games were played out by sampling according to a distribution obtained by multiplying the network's output element-wise by a 9x9 tensor containing 1's in legal move positions and 0's elsewhere. The resulting tensor was then divided by the sum of its elements to ensure it was a distribution. The pool was initialized to contain only the network and its parameters resulting from phase 1. The current network was initialized to the same network with the same parameters. After each batch of 160 games, an update was applied to the current network's parameters \[1, 2\]:
+Games were played in batches of 160. Each batch consisted of 10 sub-batches of 16 games played between the current network and a network randomly selected from a pool of networks. Games were played out by sampling according to a distribution obtained by multiplying the network's output element-wise by a 9x9 tensor containing 1's in legal move positions and 0's elsewhere. The resulting tensor was then divided by the sum of its elements to ensure it was a distribution. The pool was initialized to contain only the network and its parameters resulting from phase 1. The current network was initialized to the same network with the same parameters. After each batch of 160 games, an update was applied to the current network's parameters \[1\]:
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{200}&space;\large&space;\Delta&space;\rho&space;=&space;\frac{\alpha}{n}&space;\sum_{i=1}^{n}&space;\sum_{t=1}&space;^{T^i}&space;\frac{\partial&space;\log&space;p_\rho&space;(a_t^i&space;|&space;s_t^i)}{\partial&space;\rho}z_t^i" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{200}&space;\large&space;\Delta&space;\rho&space;=&space;\frac{\alpha}{n}&space;\sum_{i=1}^{n}&space;\sum_{t=1}&space;^{T^i}&space;\frac{\partial&space;\log&space;p_\rho&space;(a_t^i&space;|&space;s_t^i)}{\partial&space;\rho}z_t^i" title="\large \Delta \rho = \frac{\alpha}{n} \sum_{i=1}^{n} \sum_{t=1} ^{T^i} \frac{\partial \log p_\rho (a_t^i | s_t^i)}{\partial \rho}z_t^i" /></a>
 
@@ -140,6 +144,8 @@ I would also like to evaluate the network by uploading it to the codingame leade
 
 ## Cited Works
 
+1.  Silver, David, et al. “Mastering the Game of Go with Deep Neural Networks and Tree Search.” Nature, vol. 529, no. 7587, Jan. 2016, pp. 484–89. www.nature.com, https://doi.org/10.1038/nature16961.
 
+2. Bertholon, Guillaume, et al. “At Most 43 Moves, At Least 29: Optimal Strategies and Bounds for Ultimate Tic-Tac-Toe.” ArXiv:2006.02353 [Cs], June 2020. arXiv.org, http://arxiv.org/abs/2006.02353
 
 
