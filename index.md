@@ -66,7 +66,7 @@ Value networks were trained for 100 epochs with Adam optimization to minimize Me
 The search algorithm constructs a tree of nodes, each of which corresponds to a board position. Each node contains 4 values, W, N, Q, and P. The constant c is set to 5. When deciding what move to make, the search first performs _n_ rollouts where each consists of the following 4 steps:
 
 1. Traverse to a leaf node of the tree, choosing the child that maximizes Q + c * P.
-2. Evaluate the board position of the leaf node with the value network to obtain a score v, and evalute the board position with the policy network to obtain P values for every legal move at the current board position. Create a child node of the leaf node for each legal move containing the result of applying that move to the leaf node's board position and the P value calculated from the policy network. Initialize the W, N, and Q values of these nodes to 0.
+2. Evaluate the board position of the leaf node with the value network to obtain a score v, and evaluate the board position with the policy network to obtain P values for every legal move at the current board position. Create a child node of the leaf node for each legal move containing the result of applying that move to the leaf node's board position and the P value calculated from the policy network. Initialize the W, N, and Q values of these nodes to 0.
 3. Move back up the tree, setting W = W + v, N = N + 1, and Q = W / N for each node encountered along the way.
 
 After all _n_ rollouts have been performed, the algorithm chooses the move leading to the child with the maximum N value.
