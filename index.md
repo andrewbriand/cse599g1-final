@@ -11,7 +11,7 @@ Ultimate Tic-Tac-Toe is played on a board composed of 9 standard 3x3 Tic-Tac-Toe
 
 ## Related Work
 
-I have personally created several AI to play ultimate tic tac toe without deep learning in the past. I used my best one for evaluation at the end of the project.
+I have personally created several AIs to play ultimate tic tac toe without deep learning in the past. I used my best one for evaluation at the end of the project.
 
 There is a leaderboard for Ultimate Tic-Tac-Toe AIs on [codingame.com](https://www.codingame.com/multiplayer/bot-programming/tic-tac-toe/leaderboard). This is where I collected data for the project.
 
