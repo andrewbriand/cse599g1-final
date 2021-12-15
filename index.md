@@ -102,7 +102,7 @@ The first consists of the following for a total of 126k trainable parameters:
 3. A ReLU activation applied to the concatenation of 1 upsampled to a 9x9x32 tensor and 2.
 4. A batch-normalization layer.
 5. 12 convolutional layers consisting of 32 3x3 filters, each followed by ReLU activation and batch normalization.
-6. A convolution layer consiting of 1 1x1 filter, followed by ReLU activation and batch normalization. 
+6. A convolution layer consisting of 1 1x1 filter, followed by ReLU activation and batch normalization. 
 7. A dense layer with 81 outputs with softmax activation to form the 9x9 output tensor. 
 
 The second consists of the following for a total of 36k trainable parameters:
