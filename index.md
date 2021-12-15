@@ -124,7 +124,7 @@ The first network achieved a win-rate of 90.7% in 1000 games against its initial
 
 ### Phase 3
 
-The modified versions of networks 1 and 2 achieved test MSE's of 0.68 and 0.71 respectively.
+The first network was used to generate data as it beat the second network head-to-head in phase 2. The modified versions of networks 1 and 2 achieved test MSE's of 0.68 and 0.71 respectively.
 
 ### Evaluation against other AIs
 
