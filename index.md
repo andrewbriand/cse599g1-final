@@ -130,7 +130,7 @@ The first network was used to generate data as it beat the second network head-t
 
 #### Phase 2
 
-The best network resulting from phase 2 was played against my previous hand-coded policy AI with move sampling as before (i.e. with no search). Below is a chart of the number of MCTS rollouts the other AI was permitted to do vs the win-rate and draw-rate of the network. Each match consisted of 30 games, 15 as X and 15 as O.
+The best network resulting from phase 2 was played against my previous hand-coded policy AI with move sampling as before (i.e. with no search). Below is a chart of the number of MCTS rollouts the other AI was permitted to perform versus the win-rate and draw-rate of the network. Each match consisted of 30 games, 15 as X and 15 as O.
 
 |Rollouts|250|500|1000|5000|10000|
 |--------|---|---|----|----|----|
