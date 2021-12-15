@@ -142,6 +142,8 @@ I would also like to evaluate the network by uploading it to the codingame leade
 
 ## Video
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/cAkqTiut-tE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## Cited Works
 
 1.  Silver, David, et al. “Mastering the Game of Go with Deep Neural Networks and Tree Search.” Nature, vol. 529, no. 7587, Jan. 2016, pp. 484–89. www.nature.com, https://doi.org/10.1038/nature16961.
