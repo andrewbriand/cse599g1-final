@@ -6,7 +6,6 @@ import numpy as np
 import sys
 import random
 from board import *
-from multiprocessing import Pool
 import os
 
 gpus = tf.config.experimental.list_physical_devices('GPU')

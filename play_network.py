@@ -59,11 +59,15 @@ for network_side in range(2):
         opponent_proc.stdin.flush()
         print(move)
       else:
-        move_str = opponent_proc.stdout.readline().decode('utf-8').split()
-        print(move_str)
-        move_x = int(move_str[0])
-        move_y = int(move_str[1])
-        board.make_move(move_x, move_y)
+        try:
+          move_str = opponent_proc.stdout.readline().decode('utf-8').split()
+          print(move_str)
+          move_x = int(move_str[0])
+          move_y = int(move_str[1])
+          board.make_move(move_x, move_y)
+        except:
+          print([x.decode('utf-8') for x in opponent_proc.stderr.readlines()])
+          exit()
       board.display()
 
     if board.result == 0.5:
