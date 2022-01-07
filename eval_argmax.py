@@ -23,6 +23,9 @@ def move_loss(y_true, y_pred):
   cce = tf.keras.losses.CategoricalCrossentropy()
   return cce(y_true, y_pred)
 
+def model_takes_legal(model):
+  return model.inputs[0].shape[3] == 3
+
 def play_n_games(models, n):
   boards = []
   for i in range(n):
@@ -35,7 +38,8 @@ def play_n_games(models, n):
     moves.append([])
 
   while None in [x.result for x in boards]:
-    network_inputs = [board_to_network_input(x) for x in boards]
+    include_legal = model_takes_legal(models[to_play])
+    network_inputs = [board_to_network_input(x, include_legal) for x in boards]
     #for i in range(n):
     #  network_input = np.copy(boards[i].get_cells())
     #  network_input = np.transpose(network_input, (1, 2, 0))
@@ -64,11 +68,13 @@ def play_n_games(models, n):
     to_play = 1 if to_play == 0 else 0
   return moves, [x.result for x in boards]
 
-def board_to_network_input(board):
+def board_to_network_input(board, include_legal = False):
   network_input = np.copy(board.get_cells())
   network_input = np.transpose(network_input, (1, 2, 0))
   if board.to_play == 1:
     network_input = np.flip(network_input, axis=2)
+  if include_legal:
+    network_input = np.concatenate((network_input, np.copy(np.reshape(board.get_legal(), (9, 9, 1)))), axis=2)
   return network_input
 
 model1 = keras.models.load_model(sys.argv[1], custom_objects={'move_loss': move_loss, 'move_accuracy' : move_accuracy})

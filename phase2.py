@@ -29,12 +29,18 @@ def move_loss(y_true, y_pred):
 
 init_model = keras.models.load_model(sys.argv[1], custom_objects={'move_loss': move_loss, 'move_accuracy' : move_accuracy})
 
-def board_to_network_input(board):
+def board_to_network_input(board, include_legal = False):
   network_input = np.copy(board.get_cells())
   network_input = np.transpose(network_input, (1, 2, 0))
   if board.to_play == 1:
     network_input = np.flip(network_input, axis=2)
+  if include_legal:
+    network_input = np.concatenate((network_input, np.copy(np.reshape(board.get_legal(), (9, 9, 1)))), axis=2)
   return network_input
+
+def model_takes_legal(model):
+  return model.inputs[0].shape[3] == 3
+
 
 def play_n_games(models, n):
   boards = []
@@ -48,7 +54,8 @@ def play_n_games(models, n):
     moves.append([])
 
   while None in [x.result for x in boards]:
-    network_inputs = [board_to_network_input(x) for x in boards]
+    include_legal = model_takes_legal(models[to_play])
+    network_inputs = [board_to_network_input(x, include_legal) for x in boards]
     #for i in range(n):
     #  network_input = np.copy(boards[i].get_cells())
     #  network_input = np.transpose(network_input, (1, 2, 0))
@@ -104,14 +111,15 @@ num_models = 20
 iters_per_model = 10
 curr_model = init_model
 sub_batch_size = 16
-mini_batch_size = 128
-learning_rate = 0.001
+mini_batch_size = 16*10
+learning_rate = 0.002
 models = [keras.models.load_model(sys.argv[1], custom_objects={'move_loss': move_loss, 'move_accuracy' : move_accuracy})]
 model_save_dir = sys.argv[2]
 
 
 for m in range(num_models):
   for r in range(iters_per_model):
+    #exit()
     moves = []
     results = []
     for i in range(mini_batch_size//sub_batch_size):
@@ -151,7 +159,8 @@ for m in range(num_models):
           z_i = 1.0
         else:
           z_i = -1.0
-        network_inputs.append(board_to_network_input(board))
+        include_legal = model_takes_legal(curr_model)
+        network_inputs.append(board_to_network_input(board, include_legal))
         z.append(z_i)
         flat_moves.append(m)
         board.make_move(*m)
